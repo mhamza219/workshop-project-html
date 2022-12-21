@@ -1,0 +1,17 @@
+<h1>workshop index page</h1>
+
+<%= link_to 'Sign out', destroy_user_session_path, method: :delete %><br>
+<%= link_to 'create new workshop',  new_project_workshop_path %>
+
+<%#	 link_to "Create New workshop", new_workshop_path%>
+
+<% @workshops.each do |workshop| %><br><br>
+		<%= link_to 'show', project_workshop_path(workshop.project, workshop)  %>
+		<%= link_to 'edit', edit_project_workshop_path(workshop.project, workshop)  %>
+
+		<%= link_to 'Destroy', [workshop.project, workshop], method: :delete, data: { confirm: 'Are you sure?' }%>
+
+
+
+		<%= workshop.name %>	
+<% end %>
