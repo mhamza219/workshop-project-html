@@ -7,12 +7,12 @@
 
   <div class="field">
     <%= form.label :activity_type %>
-    <%= form.select :activity_type, options_from_collection_for_select(Breakout.all, :id,:name), {prompt: "select"} %>
+    <%= form.select :activity_type, options_for_select(WorkshopActivity::ACTIVITY), {prompt: "select"} %>
   </div>
 
   <div class="field">
     <%= form.label :activity_id %>
-    <%= form.select :activity_id, options_from_collection_for_select(Content.all, :id,:name), {prompt: "select"} %>
+    <%= form.select :activity_id, options_for_select([]), {prompt: "select"} %>
   </div>
 
   
@@ -21,3 +21,21 @@
     <%= form.submit %>
   </div>
   <% end %>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+
+    $(document).on('change', '#workshop_activity_activity_type', function(){
+      var val = $(this).val();
+      if(val != '' || val!= undefined){
+        $('#workshop_activity_activity_id').empty();
+        $.get(`/get_options?val=${val}`, function(data, status){
+          data.forEach(function (item) {
+            $('#workshop_activity_activity_id').append($("<option></option>").attr("value", item.id).text(item.name));   
+          });
+        });
+      }
+    });
+
+  });
+</script>

@@ -1,8 +1,8 @@
 class WorkshopActivitiesController < ApplicationController
 
 	before_action :authenticate_user!
-	before_action :set_project
-	before_action :set_workshop
+	before_action :set_project, except: [:get_options]
+	before_action :set_workshop, except: [:get_options]
   before_action :set_workshop_activity, only: %i[ show edit update destroy ]
 
 	def index
@@ -43,6 +43,11 @@ class WorkshopActivitiesController < ApplicationController
 		@workshop_activity.destroy
 		redirect_to project_workshop_workshop_activities_path
 		# redirect_to "/workshops"
+	end
+
+	def get_options
+		@data = params[:val].constantize.all
+		render json: @data.to_json 
 	end
 
 	private
