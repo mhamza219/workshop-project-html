@@ -13,7 +13,7 @@ class WorkshopActivitiesController < ApplicationController
 	end
 
 	def new
-		@workshop = @project.workshops.build
+		@workshop_activity = @workshop.workshop_activities.build
 	end
 
 	def show
@@ -21,9 +21,9 @@ class WorkshopActivitiesController < ApplicationController
 	end
 
 	def create
-		@workshop = @project.workshops.build(workshop_params)
-		@workshop.save
-		redirect_to([@workshop.project, @workshop])
+		@workshop_activity = @workshop.workshop_activities.build(workshop_activity_params)
+		@workshop_activity.save
+		redirect_to([@workshop_activity.workshop.project, @workshop_activity.workshop, @workshop_activity])
 		# redirect_to @workshop
 	end
 
@@ -33,15 +33,15 @@ class WorkshopActivitiesController < ApplicationController
 
 	def update
 		
-		@workshop.update(workshop_params)
-		redirect_to([@workshop.project, @workshop])
+		@workshop_activity.update(workshop_activity_params)
+		redirect_to([@workshop_activity.workshop.project, @workshop_activity.workshop, @workshop_activity])
 		# redirect_to "/workshops"
 	end
 
 	def destroy
 		
-		@workshop.destroy
-		redirect_to @project
+		@workshop_activity.destroy
+		redirect_to project_workshop_workshop_activities_path
 		# redirect_to "/workshops"
 	end
 
@@ -61,7 +61,7 @@ class WorkshopActivitiesController < ApplicationController
 	end
 
 	def workshop_activity_params
-		params.require(:workshop_activity).permit(:name, :workshop_id)
+		params.require(:workshop_activity).permit(:name, :workshop_id, :activity_type, :activity_id)
 	end
 
 

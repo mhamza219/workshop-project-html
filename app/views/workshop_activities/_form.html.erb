@@ -1,8 +1,18 @@
-<%= form_with(model: [@workshop_activity.workshop.project, @workshop_activity]) do |form| %>
+<%= form_with(model: [@workshop_activity.workshop.project, @workshop_activity.workshop, @workshop_activity]) do |form| %>
 
 	<div class="field">
     <%= form.label :name %>
     <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :activity_type %>
+    <%= form.select :activity_type, options_from_collection_for_select(WorkshopActivity.all, :id,:name), {prompt: "select supplier"} %>
+  </div>
+
+  <div class="field">
+    <%= form.label :activity_type %>
+    <%= form.select :activity_type, options_from_collection_for_select(WorkshopActivity.all, :id,:name), {prompt: "select supplier"} %>
   </div>
 
   

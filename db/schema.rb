@@ -10,7 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_19_054325) do
+ActiveRecord::Schema.define(version: 2022_12_23_050636) do
+
+  create_table "breakouts", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "contents", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "discussions", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "polls", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "projects", force: :cascade do |t|
     t.string "name"
@@ -37,6 +61,9 @@ ActiveRecord::Schema.define(version: 2022_12_19_054325) do
     t.integer "workshop_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "activity_type"
+    t.integer "activity_id"
+    t.index ["activity_type", "activity_id"], name: "index_workshop_activities_on_activity"
     t.index ["workshop_id"], name: "index_workshop_activities_on_workshop_id"
   end
 
