@@ -45,10 +45,10 @@ class WorkshopActivitiesController < ApplicationController
 		# redirect_to "/workshops"
 	end
 
-	def get_options
-		@data = params[:val].constantize.all
-		render json: @data.to_json 
-	end
+	# def get_options
+	# 	@data = params[:val].constantize.all
+	# 	render json: @data.to_json 
+	# end
 
 	private
 
