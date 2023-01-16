@@ -1,13 +1,219 @@
-<%= form_with(model: @project) do |form| %>
+<style>
+    .label {
+      cursor: pointer;
+    }
+
+    .progress {
+      display: none;
+      margin-bottom: 1rem;
+    }
+
+    .alert {
+      display: none;
+    }
+
+    .img-container img {
+      max-width: 100%;
+    }
+
+    .field{
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+  </style>
+
+<%= form_with(model: @project, html: {id: 'form'}) do |form| %>
+    
+  <%= hidden_field_tag :project_id, @project.id %>
 
 	<div class="field">
     <%= form.label :name %>
     <%= form.text_field :name %>
   </div>
 
-  
+  <% if @project.image? %>
+    <img class="rounded" id="project_image" src="<%= @project.image.url %>" alt="avatar">
+  <% else %>
+    <img class="rounded" id="project_image" src="" alt="avatar" style="display: none;">
+  <% end %>
+
+  <div class="field">
+    <%= form.label :Image %>
+    <%= file_field_tag :image, id: 'input' %>
+  </div>
+
+  <% if @project.video? %>
+    <div class="field">
+      <%= video_tag @project.video.url, controls: true %>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :Video %>
+    <%= form.file_field :video %>
+  </div>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= button_tag 'Submit', type: :button, id: 'submit' %>
   </div>
-  <% end %>
+<% end %>
+
+<div class="progress">
+  <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+</div>
+<div class="alert" role="alert"></div>
+
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">Crop the image</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="img-container">
+          <img id="image" src="https://avatars0.githubusercontent.com/u/3456749">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="crop">Crop</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  $(document).ready(function(){
+      var avatar = document.getElementById('project_image');
+      var image = document.getElementById('image');
+      var input = document.getElementById('input');
+      var $progress = $('.progress');
+      var $progressBar = $('.progress-bar');
+      var $alert = $('.alert');
+      var $modal = $('#modal');
+      var cropper;
+      
+      $('[data-toggle="tooltip"]').tooltip();
+
+      input.addEventListener('change', function (e) {
+        var files = e.target.files;
+        var done = function (url) {
+          input.value = '';
+          image.src = url;
+          $alert.hide();
+          $modal.modal('show');
+        };
+        var reader;
+        var file;
+        var url;
+
+        if (files && files.length > 0) {
+          file = files[0];
+
+          if (URL) {
+            done(URL.createObjectURL(file));
+          } else if (FileReader) {
+            reader = new FileReader();
+            reader.onload = function (e) {
+              done(reader.result);
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      });
+
+      $modal.on('shown.bs.modal', function () {
+        cropper = new Cropper(image, {
+          aspectRatio: 1,
+          viewMode: 3,
+        });
+      }).on('hidden.bs.modal', function () {
+        
+      });
+
+      document.getElementById('crop').addEventListener('click', function () {
+        var initialAvatarURL;
+        var canvas;
+
+        $modal.modal('hide');
+      });
+
+    $(document).on('click', '#submit', function(){
+
+      if (cropper) {
+          canvas = cropper.getCroppedCanvas({
+            width: 160,
+            height: 160,
+          });
+          initialAvatarURL = avatar.src;
+          avatar.src = canvas.toDataURL();
+          $progress.show();
+          $alert.removeClass('alert-success alert-warning');
+          canvas.toBlob(function (blob) {
+            sendData(cropper, blob, $progress, $alert, $progressBar, avatar);
+          });
+        }
+        else{
+          sendData();
+        }
+    });
+
+  });
+
+  function sendData(cropper=undefined, blob=undefined, $progress=undefined, $alert=undefined, $progressBar=undefined, avatar=undefined){
+
+    var projectId = $('#project_id').val();
+    var formURL = projectId ? `/projects/${projectId}` : '/projects';
+    var requestType = projectId ? 'PATCH' : 'POST';
+    var formData = new FormData($('#form')[0]);
+
+    if(blob){
+      formData.append('project[image]', blob, 'avatar.jpg');
+    }
+
+    $.ajax(formURL, {
+      method: requestType,
+      data: formData,
+      processData: false,
+      contentType: false,
+
+      xhr: function () {
+        var xhr = new XMLHttpRequest();
+
+        xhr.upload.onprogress = function (e) {
+          // var percent = '0';
+          // var percentage = '0%';
+
+          // if (e.lengthComputable) {
+          //   percent = Math.round((e.loaded / e.total) * 100);
+          //   percentage = percent + '%';
+          //   $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+          // }
+        };
+
+        return xhr;
+      },
+
+      success: function () {
+        // $alert.show().addClass('alert-success').text('Upload success');
+        // if(cropper){
+        //   cropper.destroy();
+        //   cropper = null;
+        // }
+      },
+
+      error: function () {
+        // avatar.src = initialAvatarURL;
+        // $alert.show().addClass('alert-warning').text('Upload error');
+      },
+
+      complete: function () {
+        // $progress.hide();
+      },
+    });
+  }
+</script>

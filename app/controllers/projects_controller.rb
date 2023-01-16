@@ -26,13 +26,11 @@ class ProjectsController < ApplicationController
 	end
 
 	def update
-		
 		@project.update(project_params)
 		redirect_to "/projects"
 	end
 
 	def destroy
-		
 		@project.destroy
 		redirect_to "/projects"
 	end
@@ -44,7 +42,7 @@ class ProjectsController < ApplicationController
 	end
 
 	def project_params
-		params.require(:project).permit(:name, :user_id)
+		params.require(:project).permit(:name, :user_id, :image, :video)
 	end
 
 end
