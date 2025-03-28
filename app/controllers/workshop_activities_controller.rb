@@ -1,6 +1,6 @@
 class WorkshopActivitiesController < ApplicationController
 
-	before_action :authenticate_user!
+	# before_action :authenticate_user!
 	before_action :set_project, except: [:get_options]
 	before_action :set_workshop, except: [:get_options]
   before_action :set_workshop_activity, only: %i[ show edit update destroy ]
@@ -45,10 +45,21 @@ class WorkshopActivitiesController < ApplicationController
 		# redirect_to "/workshops"
 	end
 
-	def get_options
-		@data = params[:val].constantize.all
-		render json: @data.to_json 
-	end
+	# def get_options
+	# 	@data = params[:val].constantize.all
+	# 	render json: @data.to_json 
+	# end
+  def get_options
+    allowed_models = ["Poll", "Content", "Breakout", "Discussion"]
+    Rails.logger.info "Fetching data for activity type: #{params[:val]}"  # Debugging log
+
+    if allowed_models.include?(params[:val])
+      @data = params[:val].constantize.select(:id, :name)
+      render json: @data
+    else
+      render json: { error: "Invalid activity type" }, status: :unprocessable_entity
+    end
+  end
 
 	private
 
